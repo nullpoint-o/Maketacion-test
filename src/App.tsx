@@ -23,7 +23,10 @@ import {
 } from './utils/manuscriptParser';
 import { LuxuryBookRenderer } from './components/LuxuryBookRenderer';
 import { TechnicalSpecSheet } from './components/TechnicalSpecSheet';
-import { generateStandaloneLuxuryHtml } from './utils/exportGenerators';
+import {
+  generateStandaloneInteractiveWebApp,
+  generateStandaloneLuxuryHtml,
+} from './utils/exportGenerators';
 
 type ActiveTab = 'preview' | 'indesign' | 'html-css' | 'import';
 
@@ -168,6 +171,17 @@ export default function App() {
   };
 
   const handleDownloadHtmlDirect = () => {
+    const html = generateStandaloneInteractiveWebApp(editorialDoc, currentPalette);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = window.document.createElement('a');
+    a.href = url;
+    a.download = 'index.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadCleanBookHtml = () => {
     const html = generateStandaloneLuxuryHtml(editorialDoc, currentPalette);
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -533,14 +547,32 @@ export default function App() {
                   notas marginales.
                 </span>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleDownloadHtmlDirect}
+                  className="px-3 py-1.5 bg-[#111C38] text-white hover:bg-[#1E3A8A] transition-colors font-medium flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Descargar index.html Autónomo (Para abrir en PC / GitHub)</span>
+                </button>
+                <span aria-hidden="true">·</span>
+                <button
+                  type="button"
+                  onClick={handleDownloadCleanBookHtml}
+                  className="text-stone-800 hover:text-[#1E3A8A] font-medium flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>E-Book Limpio (.html)</span>
+                </button>
+                <span aria-hidden="true">·</span>
                 <button
                   type="button"
                   onClick={() => window.print()}
                   className="text-stone-800 hover:text-[#1E3A8A] font-medium flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>Imprimir Pliego / PDF</span>
+                  <span>Imprimir / PDF</span>
                 </button>
                 <span aria-hidden="true">·</span>
                 <button
@@ -549,7 +581,7 @@ export default function App() {
                   className="text-[#78350F] hover:underline font-medium flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>Ver Especificaciones InDesign/Canva</span>
+                  <span>Guía InDesign/Canva</span>
                 </button>
               </div>
             </div>

@@ -714,3 +714,98 @@ function escapeHtml(str: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+/**
+ * Generates a 100% standalone, zero-dependency interactive "index.html" studio
+ * that can be double-clicked locally (`file://`) or uploaded directly to GitHub Pages
+ * without needing `npm run build` or Node.js.
+ */
+export function generateStandaloneInteractiveWebApp(
+  doc: EditorialDocument,
+  palette: EditorialPalette
+): string {
+  const baseBookHtml = generateStandaloneLuxuryHtml(doc, palette);
+  // Inject an interactive floating toolbar at the top of the standalone HTML so the user can switch palettes, edit text, or print when opening index.html directly
+  const interactiveToolbar = `
+  <style>
+    .standalone-bar {
+      max-width: 1120px;
+      margin: 0 auto 1.5rem auto;
+      background: #111C38;
+      color: #FBF9F5;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .standalone-bar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .standalone-btn {
+      background: rgba(255,255,255,0.1);
+      color: #FFFFFF;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 0.45rem 0.85rem;
+      font-size: 0.72rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    .standalone-btn:hover {
+      background: rgba(255,255,255,0.22);
+    }
+    .standalone-btn-primary {
+      background: #78350F;
+      border-color: #9A3412;
+    }
+    @media print {
+      .standalone-bar { display: none !important; }
+    }
+  </style>
+  <div class="standalone-bar">
+    <div>
+      <strong>ATELIER FOLIO · ARCHIVO HTML AUTÓNOMO</strong>
+      <span style="opacity:0.75; margin-left: 0.5rem;">(Funciona con doble clic local y en GitHub Pages sin servidor)</span>
+    </div>
+    <div class="standalone-bar-actions">
+      <button class="standalone-btn" onclick="setTheme('#FBF9F5','#F3EFE6','#1E3A8A','#78350F','#111C38')">Azul Noche &amp; Dorado</button>
+      <button class="standalone-btn" onclick="setTheme('#F7F4EE','#EBE6DF','#9A3412','#1E3A8A','#29201B')">Piedra &amp; Terracota</button>
+      <button class="standalone-btn" onclick="setTheme('#FFFFFF','#F5F5F4','#1E293B','#9A3412','#0F172A')">Gris Pizarra</button>
+      <button class="standalone-btn" onclick="toggleEditable()" id="editBtn">Activar Edición Directa</button>
+      <button class="standalone-btn standalone-btn-primary" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+  </div>
+  <script>
+    function setTheme(paper, sec, acc1, acc2, plate) {
+      const r = document.documentElement.style;
+      r.setProperty('--paper-bg', paper);
+      r.setProperty('--surface-sec', sec);
+      r.setProperty('--accent-primary', acc1);
+      r.setProperty('--accent-sec', acc2);
+      r.setProperty('--plate-bg', plate);
+    }
+    let isEdit = false;
+    function toggleEditable() {
+      isEdit = !isEdit;
+      const sheet = document.querySelector('.book-sheet');
+      if (sheet) {
+        sheet.contentEditable = isEdit ? 'true' : 'false';
+        sheet.style.outline = isEdit ? '2px dashed #1E3A8A' : 'none';
+      }
+      const btn = document.getElementById('editBtn');
+      if (btn) btn.textContent = isEdit ? 'Bloquear Edición' : 'Activar Edición Directa';
+    }
+  </script>
+`;
+
+  return baseBookHtml.replace('<body>', `<body>\n${interactiveToolbar}`);
+}
+
