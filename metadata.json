@@ -1,0 +1,6 @@
+{
+  "name": "Atelier Folio — Maquetación Editorial de Lujo",
+  "description": "Transforma tus manuscritos y documentos Word en publicaciones académicas y libros de estudio de alta gama sin alterar su contenido original, con exportación a HTML/CSS impreso y especificaciones técnicas para InDesign y Canva.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
